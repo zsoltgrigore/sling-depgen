@@ -36,7 +36,6 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-scr-plugin</artifactId>
-				<version>1.20.0</version>
 				<executions>
 					<execution>
 						<id>generate-scr-descriptor</id>
@@ -50,12 +49,15 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<extensions>true</extensions>
-				<version>2.4.0</version>
+				<configuration>
+                    <instructions>
+                        <Sling-Initial-Content>SLING-INF;overwrite:=true</Sling-Initial-Content>
+                    </instructions>
+                </configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
@@ -64,7 +66,6 @@
 			<plugin>
 				<groupId>org.apache.sling</groupId>
 				<artifactId>maven-sling-plugin</artifactId>
-				<version>2.1.0</version>
 				<configuration>
 					<slingUrl>http://localhost:8080/system/console</slingUrl>
 					<user>admin</user>

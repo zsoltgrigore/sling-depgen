@@ -3,6 +3,8 @@ package org.konzult.sling.utils.depgen.impl.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 
@@ -13,7 +15,7 @@ import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.HttpConstants;
-import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
+import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.konzult.sling.utils.depgen.DepGenConstants;
 import org.konzult.sling.utils.depgen.component.POMGenerator;
 import org.osgi.framework.Constants;
@@ -21,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SlingServlet(
-	methods = {HttpConstants.METHOD_GET},
-	paths = {DepGenConstants.PATH_DEP_POM}
+	methods = {HttpConstants.METHOD_POST},
+	resourceTypes={DepGenConstants.RT_GENERATOR}
 )
 @Properties({
 	@Property(name = Constants.SERVICE_PID, value = "org.konzult.sling.utils.depgen.impl.SlingDependencyGeneratorServlet"),
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory;
 	@Property(name = Constants.SERVICE_VENDOR, value = DepGenConstants.VENDOR),
 	@Property(name = Constants.VISIBILITY_PRIVATE, value = "true")
 })
-public class SlingDependencyGeneratorServlet extends SlingSafeMethodsServlet {
+public class SlingDependencyGeneratorServlet extends SlingAllMethodsServlet {
 	
 	private static final long serialVersionUID = -4431177184008596134L;
 	
@@ -39,7 +41,14 @@ public class SlingDependencyGeneratorServlet extends SlingSafeMethodsServlet {
 	@Reference
 	private POMGenerator pomGenerator;
 	
+	@SuppressWarnings("unchecked")
 	@Override
+	protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response)
+			throws ServletException, IOException {
+		Enumeration<String> params = request.getParameterNames();
+		Collections.list(params).forEach((String param) -> LOGGER.warn(param));
+	}
+	
 	protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
 			throws ServletException, IOException {
 		

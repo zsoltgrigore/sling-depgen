@@ -1,0 +1,4 @@
+{
+	"jcr:title" : "Generate Dependency Pom",
+	"sling:resourceType" : "sling-depgen/generate"
+}

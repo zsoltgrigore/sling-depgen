@@ -13,4 +13,6 @@ public class DepGenConstants {
 	public static final String PATH_POM_TEMPLATE = "template/dependencyPom.xml";
 	
 	public static final String PLACEHOLDER = "{0}";
+	
+	public static final String RT_GENERATOR = "sling-depgen/generate";
 }
