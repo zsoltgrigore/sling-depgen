@@ -1,4 +1,4 @@
-package org.konzult.sling.utils.depgen.component;
+package org.konzult.sling.utils.depgen.api.handler;
 
 import java.io.IOException;
 

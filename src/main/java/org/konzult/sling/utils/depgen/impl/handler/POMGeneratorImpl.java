@@ -1,4 +1,4 @@
-package org.konzult.sling.utils.depgen.impl.component;
+package org.konzult.sling.utils.depgen.impl.handler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.konzult.sling.utils.depgen.DepGenConstants;
-import org.konzult.sling.utils.depgen.component.POMGenerator;
+import org.konzult.sling.utils.depgen.api.handler.POMGenerator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
