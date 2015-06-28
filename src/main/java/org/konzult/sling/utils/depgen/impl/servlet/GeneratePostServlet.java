@@ -1,12 +1,15 @@
 package org.konzult.sling.utils.depgen.impl.servlet;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
@@ -50,33 +53,51 @@ public class GeneratePostServlet extends SlingAllMethodsServlet {
 	protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, 
 				IOException {
 		if (ServletFileUpload.isMultipartContent(request)) {
-			
+			Node dependenciesNode = processItems(processRequest(request));
 		}
+		pomGenerator.generate(false);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<FileItem> processRequest(SlingHttpServletRequest request) throws ServletException {
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+
+		ServletContext servletContext = this.getServletConfig().getServletContext();
+		File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+		factory.setRepository(repository);
+
+		ServletFileUpload upload = new ServletFileUpload(factory);
 		
 		try {
-	        List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
-	        for (FileItem item : items) {
-	            if (!item.isFormField()) {
-	                // Process form file field (input type="file").
-	                if(item.getFieldName() == "fileupload") {
-		                String fileName = FilenameUtils.getName(item.getName());
-		                final DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
-		                builder.setValidating(Boolean.TRUE);
-		                builder.setIgnoringElementContentWhitespace(Boolean.TRUE);
-		                Document template = builder.newDocumentBuilder().parse(item.getInputStream());
-		                final NodeList found =template.getElementsByTagName("dependencies");
+			return (List<FileItem>) upload.parseRequest(request);
+		} catch (FileUploadException e) {
+			throw new ServletException("Cannot parse multipart request.", e);
+		}
+	}
+	
+	private Node processItems(List<FileItem> items) throws ServletException {
+		for (FileItem item : items) {
+            if (!item.isFormField()) {
+                // Process form file field (input type="file").
+                if(item.getFieldName() == "fileupload") {
+	                String fileName = FilenameUtils.getName(item.getName());
+	                final DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
+	                builder.setValidating(Boolean.TRUE);
+	                builder.setIgnoringElementContentWhitespace(Boolean.TRUE);
+	                Document template;
+					try {
+						template = builder.newDocumentBuilder().parse(item.getInputStream());
+						final NodeList found = template.getElementsByTagName("dependencies");
 		                
 		                if (found.getLength() == 1) {
-		                	Node dependenciesNode = found.item(0);
+		                	return found.item(0);
 		                }
-		                
-		                pomGenerator.generate(false);
-	                }
-	            }
-	        }
-	    } catch (Exception e) {
-	        throw new ServletException("Cannot parse multipart request.", e);
-
-	    }
+					} catch (Exception e) {
+						throw new ServletException("Cannot parse multipart request.", e);
+					}
+                }
+            }
+        }
+		return null;
 	}
 }
