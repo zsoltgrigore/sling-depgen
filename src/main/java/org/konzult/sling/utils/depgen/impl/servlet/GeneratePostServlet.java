@@ -1,10 +1,6 @@
 package org.konzult.sling.utils.depgen.impl.servlet;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -28,6 +24,8 @@ import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @SlingServlet(
 	methods = {HttpConstants.METHOD_POST},
@@ -51,6 +49,10 @@ public class GeneratePostServlet extends SlingAllMethodsServlet {
 	@Override
 	protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, 
 				IOException {
+		if (ServletFileUpload.isMultipartContent(request)) {
+			
+		}
+		
 		try {
 	        List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 	        for (FileItem item : items) {
@@ -59,7 +61,14 @@ public class GeneratePostServlet extends SlingAllMethodsServlet {
 	                if(item.getFieldName() == "fileupload") {
 		                String fileName = FilenameUtils.getName(item.getName());
 		                final DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
+		                builder.setValidating(Boolean.TRUE);
+		                builder.setIgnoringElementContentWhitespace(Boolean.TRUE);
 		                Document template = builder.newDocumentBuilder().parse(item.getInputStream());
+		                final NodeList found =template.getElementsByTagName("dependencies");
+		                
+		                if (found.getLength() == 1) {
+		                	Node dependenciesNode = found.item(0);
+		                }
 		                
 		                pomGenerator.generate(false);
 	                }
