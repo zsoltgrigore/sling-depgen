@@ -1,22 +1,13 @@
 package org.konzult.sling.utils.depgen.impl.handler;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.StringJoiner;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.konzult.sling.utils.depgen.DepGenConstants;
@@ -62,10 +53,12 @@ public class POMGeneratorImpl implements POMGenerator {
 		
 	        Element deps = xmlDoc.createElement("dependencies");
 			
+	        int numOfBundles = 0;
+	        
 			for (Bundle bundle : bctx.getBundles()) {
 				@SuppressWarnings("rawtypes")
 				Enumeration entries = bundle.findEntries(META_INF, FN_POM_PROPERTIES, true);
-				while(entries.hasMoreElements()) {
+				while(entries != null && entries.hasMoreElements()) {
 					Properties props = new java.util.Properties();
 					props.load(((URL)entries.nextElement()).openStream());
 					
@@ -89,15 +82,16 @@ public class POMGeneratorImpl implements POMGenerator {
 				            scope.setTextContent("provided");
 				            dep.appendChild(scope);
 						}
+				        numOfBundles++;
 					}
 				}
 			}
+			LOGGER.info("Written {} bundles as dependencies.", numOfBundles);
 			
-			return xmlDoc;
+			return deps;
 			
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Configureation error while parsing {}", e.getMessage(), e);
 		}
 		
 		return null;

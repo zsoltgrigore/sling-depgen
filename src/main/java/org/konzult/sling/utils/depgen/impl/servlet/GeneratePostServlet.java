@@ -26,6 +26,7 @@ import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 @SlingServlet(
 	methods = {HttpConstants.METHOD_POST},
@@ -59,7 +60,8 @@ public class GeneratePostServlet extends SlingAllMethodsServlet {
 	            builder.setValidating(Boolean.TRUE);
 	            builder.setIgnoringElementContentWhitespace(Boolean.TRUE);
 	            final Document template = builder.newDocumentBuilder().parse(fileParam.getInputStream());
-	            template.appendChild(pomGenerator.generate(Boolean.TRUE));
+	            Node importedDeps = template.importNode(pomGenerator.generate(Boolean.TRUE), true);
+	            template.appendChild(importedDeps);
 	            
 	            DOMSource domSource = new DOMSource(template);
 	            StreamResult result = new StreamResult(response.getWriter());
