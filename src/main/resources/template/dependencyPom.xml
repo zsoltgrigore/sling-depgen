@@ -16,7 +16,4 @@
 	<packaging>pom</packaging>
 	<name>Sling Dependencies</name>
 
-	<dependencies>
-			
-	</dependencies>
 </project>

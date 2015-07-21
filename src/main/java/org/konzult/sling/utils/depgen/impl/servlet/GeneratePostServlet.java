@@ -1,12 +1,17 @@
 package org.konzult.sling.utils.depgen.impl.servlet;
 
 import java.io.IOException;
+import java.io.Writer;
 
 import javax.servlet.ServletException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -60,18 +65,28 @@ public class GeneratePostServlet extends SlingAllMethodsServlet {
 	            builder.setValidating(Boolean.TRUE);
 	            builder.setIgnoringElementContentWhitespace(Boolean.TRUE);
 	            final Document template = builder.newDocumentBuilder().parse(fileParam.getInputStream());
-	            Node importedDeps = template.importNode(pomGenerator.generate(Boolean.TRUE), true);
-	            template.appendChild(importedDeps);
+	            Node importedNode = template.importNode(pomGenerator.generate(Boolean.TRUE), Boolean.TRUE);
+	            Node project = template.getElementsByTagName("project").item(0);
+	            project.appendChild(importedNode);
 	            
-	            DOMSource domSource = new DOMSource(template);
-	            StreamResult result = new StreamResult(response.getWriter());
-	            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-	            transformer.transform(domSource, result);
-	            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	            response.setContentType("application/xml");
+	            prettyPrint(template, response.getWriter(), 2);
 			} catch (Exception e) {
 				LOGGER.warn("Unable to parse the template!");
 				throw new ServletException(e);
 			}
 		}
+	}
+	
+	private void prettyPrint(Document document, Writer outputStream, int indent) 
+					throws TransformerFactoryConfigurationError, TransformerException {
+	    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+	    if (indent > 0) {
+	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indent));
+	    }
+	    Result result = new StreamResult(outputStream);
+	    Source source = new DOMSource(document);
+	    transformer.transform(source, result);
 	}
 }

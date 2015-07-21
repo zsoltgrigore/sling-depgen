@@ -87,15 +87,11 @@ public class POMGeneratorImpl implements POMGenerator {
 				}
 			}
 			LOGGER.info("Written {} bundles as dependencies.", numOfBundles);
-			
 			return deps;
-			
 		} catch (ParserConfigurationException e) {
 			LOGGER.error("Configureation error while parsing {}", e.getMessage(), e);
 		}
-		
 		return null;
-			
 	}
 	
 	protected final void activate(final ComponentContext cctx) {
