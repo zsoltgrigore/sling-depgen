@@ -70,6 +70,8 @@ public class GeneratePostServlet extends SlingAllMethodsServlet {
 	            project.appendChild(importedNode);
 	            
 	            response.setContentType("application/xml");
+	            response.setHeader("Content-Disposition","attachment;" + fileParam.getFileName());
+	            
 	            prettyPrint(template, response.getWriter(), 2);
 			} catch (Exception e) {
 				LOGGER.warn("Unable to parse the template!");
